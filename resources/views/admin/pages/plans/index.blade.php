@@ -3,22 +3,20 @@
 @section('title', 'Planos')
 
 @section('content_header')
-    <h1>Planos</h1>
+    <h1>Planos <a href="{{ route('plans.create') }}" class="btn btn-primary"><i class="fas fa-plus-circle"></i> ADICIONAR PLANO</a></h1>
 @stop
 
 @section('content')
 <div class="card">
     <div class="card-header">
-    <a href="{{ route('plans.create') }}" class="btn btn-primary"><i class="fas fa-plus-circle"></i> ADICIONAR PLANO</a>
+    <form action="{{ route('plans.search') }}" class="form form-inline" method="post">
+            @csrf
+    <input type="text" name="filter" class="form-control" value="{{ $filters['filter'] ?? '' }}">
+            <button type="submit" class="btn btn-dark" >Filtar</button>
+        </form>
     </div>
     <div class="card-body">
-        {{-- mensagem de alerta --}}
-        @if (session('message'))
-            <div class="alert alert-info">
-                {{ session('message') }}
-            </div>
-        @endif
-        {{-- fim de mensagem --}}
+        @include('admin.includes.alerts')
         <table class="table table-striped">
             <thead>
               <tr>
@@ -31,10 +29,9 @@
                 @foreach ($plans as $plan)
                     <tr>
                         <td>{{ $plan->name }}</td>
-                        <td>{{ $plan->price }}</td>
+                        <td>R$ {{ number_format($plan->price, 2, ',','.') }}</td>
                         <td>
-                            <a href="" class="btn btn-success btn-sm">Detalhes</a>
-                            <a href="" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="{{ route('plans.edit', $plan->url) }}" class="btn btn-warning btn-sm">Editar</a>
                             <a href="{{ route('plans.show', $plan->url) }}" class="btn btn-primary btn-sm">Ver</a>
                         </td>
                     </tr>
@@ -43,7 +40,11 @@
           </table>
     </div>
     <div class="card-footer">
-        {!! $plans->links() !!}
+        @if (isset($filters))
+            {!! $plans->appends($filters)->links() !!}
+        @else
+            {!! $plans->links() !!}
+        @endif
     </div>
   </div>
 @stop
